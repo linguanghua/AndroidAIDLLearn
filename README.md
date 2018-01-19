@@ -1,11 +1,10 @@
-# AndroidAIDLLearn
-Android进程间通信之AIDL
+# Android进程间通信之AIDL
 这是一个例子工程，主要介绍AIDL的使用和原理浅析。
 
 AIDL是Android Interface Definition Language的缩写，也是Android接口定义语言。简单点说，AIDL是一种语言。设计这门语言的目的是为了更好的实现进程间通信，尤其是在涉及多进程并发情况下的进程间通信。还有一个目的是，简化Android开发人员的工作。
 Android中一个应用（APP）一般只运行在一个进程中，但有时候由于达到某种目的也会开启多个进程。每个进程都有自己独立的虚拟机和独立的内存。如果一个应用开启了多个进程，那么进程间通信是必须的，同时，如果两个APP间通信，也属于进程间的通信。
 
-AIDL语法
+##AIDL语法
 
     AIDL文件的后缀是.aidl而不是.java
     AID了默认支持一些数据类型，在使用这些数据类型的时候是不需要导包的，但是除了这些类型之外的数据类型都要导包，就算目标文件和.aidl文件在同一个包下。
@@ -17,12 +16,11 @@ AIDL语法
         List类型：List中的所有元素必须是AIDL支持的类型之一，或者是一个其他AIDL生成的接口，或者是定义的parcelable。可以使用泛型
         Map类型：Map中所有元素必须是AIDL支持的类型之一，或者是一个其他AIDL生成的接口，或者是定义的parcelable。Map是不支持泛型的。
         所有的AIDL接口本身
-          
-    定向tag:AIDL中的定向tag用来表示在跨进程通信中数据的流向，其中in表示数据只能由客户端流向服务端，out表示只能由服务端流向客户端，而inout则表示既可以由客户端流向服务端，也可以从服务端流向客户端。定向tag是针对在客户端中那个传入方法的对象而言的。in为定向tag的时候表现为服务端接收一个那个对象的完整数据，但是客户端那个对象不会因为服务端对传参的修改而发生变动；out的话，表现为服务端将接收那个对象的空对象，但是服务端对接收到的空对象有任何的修改客户端都会同步变动；inout为定向tag的情况下，服务端会接收到客户端传来对象的完整信息，并且客户端会同步服务端对这个对象的任何变动。
+   定向tag: AIDL中的定向tag用来表示在跨进程通信中数据的流向，其中in表示数据只能由客户端流向服务端，out表示只能由服务端流向客户端，而inout则表示               既可以由客户端流向服务端，也可以从服务端流向客户端。定向tag是针对在客户端中那个传入方法的对象而言的。in为定向tag的时候表现为服务端接收一个           那个对象的完整数据，但是客户端那个对象不会因为服务端对传参的修改而发生变动；out的话，表现为服务端将接收那个对象的空对象，但是服务端对接收           到的空对象有任何的修改客户端都会同步变动；inout为定向tag的情况下，服务端会接收到客户端传来对象的完整信息，并且客户端会同步服务端对这个对象           的任何变动。     
     
     Java中的String和CharSequence的定向tag默认且只能是in。
-    
-AIDL的创建需要涉及两种文件，一种是aidl使用类声明文件，另一种是aidl接口文件。
+##AIDL创建    
+  AIDL的创建需要涉及两种文件，一种是aidl使用类声明文件，另一种是aidl接口文件。
     第一种类声明文件是自定义的类（例子种的Book类）需要在进程间通信使用时，需要创建一个aidl文件声明这个类，表明AIDL可以使用这个类，同时这个类应该实现Parcelable接口。
     第二类aidl接口文件，这个文件是一个接口（例子中的BookManager接口）声明在进程间通信的时候需要使用的方法。
     
@@ -83,8 +81,9 @@ AIDL的创建需要涉及两种文件，一种是aidl使用类声明文件，另
     在客户端，通过ServiceConnection接口对象的onServiceConnected()方法里面，通过BookManager.Stub.asInterface，就获取了服务端onBind()方法返回的IBinder对象，客户端就可以与服务端通信了。
      
     至此，客户端和服务端就可以开始通信了。
-          
-    下面分析通信原理：其中主要使用到了AIDL文件自动生成的Java接口文件BookManager，路径是在\app\build\generated\source\aidl\debug\com\junxu\androidaidllearn。
+      
+##AIDL原理浅析
+    下面分析通信原理：其中主要使用到了AIDL文件自动生成的Java接口文件BookManager，路径是在\app\build\generated\source\aidl\debug\com\junxu\androidaidllearn。
           
     先看服务端，服务端时定义了BookManager.Stub类的对象，然后在onBind()方法返回，到这，服务端等待者客户端来绑定连接。
     再看客户端，定义了BookManager对象，用于在绑定Service的时候，接收BookManager.Stub.asInterface()方法返回的BookManager.Stub类的对象。
